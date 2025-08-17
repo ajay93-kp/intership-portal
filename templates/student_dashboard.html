@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-user-graduate"></i> Student Dashboard</h2>
+        <p class="text-muted">Welcome, {{ current_user.username }}!</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-file-alt fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Total Applications</h5>
+                <h2 class="text-primary">{{ internships|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Approved</h5>
+                <h2 class="text-success">{{ internships|selectattr('status', 'equalto', 'approved')|list|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Pending</h5>
+                <h2 class="text-warning">{{ internships|selectattr('status', 'equalto', 'pending')|list|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5><i class="fas fa-briefcase"></i> My Internships</h5>
+                <a href="{{ url_for('apply_internship') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Apply New Internship
+                </a>
+            </div>
+            <div class="card-body">
+                {% if internships %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Position</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for internship in internships %}
+                                <tr>
+                                    <td>{{ internship.company_name }}</td>
+                                    <td>{{ internship.position }}</td>
+                                    <td>{{ internship.start_date.strftime('%b %d, %Y') }} - {{ internship.end_date.strftime('%b %d, %Y') }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if internship.status == 'approved' %}success{% elif internship.status == 'rejected' %}danger{% elif internship.status == 'pending' %}warning{% else %}info{% endif %}">
+                                            {{ internship.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if internship.status == 'approved' %}
+                                            <a href="{{ url_for('update_progress', internship_id=internship.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-edit"></i> Update Progress
+                                            </a>
+                                        {% endif %}
+                                        {% if internship.proof_file %}
+                                            <a href="{{ url_for('static', filename='uploads/' + internship.proof_file) }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                                                <i class="fas fa-download"></i> View Proof
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No internships yet</h5>
+                        <p class="text-muted">Start by applying for your first internship!</p>
+                        <a href="{{ url_for('apply_internship') }}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Apply Now
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

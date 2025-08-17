@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Update Progress{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-edit"></i> Update Progress</h3>
+                <p class="text-muted mb-0">
+                    Internship: {{ internship.position }} at {{ internship.company_name }}
+                </p>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="week_number" class="form-label">Week Number *</label>
+                        <input type="number" class="form-control" id="week_number" name="week_number" min="1" max="52" required>
+                        <div class="form-text">Enter the week number of your internship (1-52)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Progress Description *</label>
+                        <textarea class="form-control" id="description" name="description" rows="6" 
+                                  placeholder="Describe what you accomplished this week, challenges faced, skills learned, etc." required></textarea>
+                        <div class="form-text">
+                            <i class="fas fa-robot"></i> 
+                            <strong>AI Analysis:</strong> Your progress will be automatically analyzed for sentiment and quality assessment.
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Progress Update
+                        </button>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Progress Tips -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-lightbulb"></i> Tips for Better Progress Updates</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-success"><i class="fas fa-check"></i> Do Include:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-arrow-right text-success"></i> Specific tasks completed</li>
+                            <li><i class="fas fa-arrow-right text-success"></i> Skills learned or improved</li>
+                            <li><i class="fas fa-arrow-right text-success"></i> Projects worked on</li>
+                            <li><i class="fas fa-arrow-right text-success"></i> Positive experiences</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-danger"><i class="fas fa-times"></i> Avoid:</h6>
+                        <ul class="list-unstyled">
+                            <li><i class="fas fa-arrow-right text-danger"></i> Vague descriptions</li>
+                            <li><i class="fas fa-arrow-right text-danger"></i> Only negative experiences</li>
+                            <li><i class="fas fa-arrow-right text-danger"></i> Too brief updates</li>
+                            <li><i class="fas fa-arrow-right text-danger"></i> Personal complaints</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Features Info -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5><i class="fas fa-brain"></i> AI-Powered Features</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-smile fa-2x text-primary mb-2"></i>
+                        <h6>Sentiment Analysis</h6>
+                        <small class="text-muted">Analyzes emotional tone of your updates</small>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-tags fa-2x text-success mb-2"></i>
+                        <h6>Keyword Extraction</h6>
+                        <small class="text-muted">Identifies important terms and skills</small>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                        <h6>Progress Classification</h6>
+                        <small class="text-muted">Categorizes update quality automatically</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Character counter for description
+document.getElementById('description').addEventListener('input', function() {
+    const maxLength = 1000;
+    const currentLength = this.value.length;
+    const remaining = maxLength - currentLength;
+    
+    // Update character count if you want to add this feature
+    // You can add a small div to show remaining characters
+});
+</script>
+{% endblock %}
