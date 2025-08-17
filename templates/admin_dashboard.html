@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-user-shield"></i> Super Admin Dashboard</h2>
+        <p class="text-muted">Welcome, {{ current_user.username }}!</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Total Internships</h5>
+                <h2 class="text-primary">{{ all_internships|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-clock fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Pending</h5>
+                <h2 class="text-warning">{{ all_internships|selectattr('status', 'equalto', 'pending')|list|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Approved</h5>
+                <h2 class="text-success">{{ all_internships|selectattr('status', 'equalto', 'approved')|list|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
+                <h5 class="card-title">Rejected</h5>
+                <h2 class="text-danger">{{ all_internships|selectattr('status', 'equalto', 'rejected')|list|length }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-list"></i> All Internship Applications</h5>
+            </div>
+            <div class="card-body">
+                {% if all_internships %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Company</th>
+                                    <th>Position</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                    <th>Applied Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for internship in all_internships %}
+                                <tr>
+                                    <td>{{ internship.student.username }}</td>
+                                    <td>{{ internship.company_name }}</td>
+                                    <td>{{ internship.position }}</td>
+                                    <td>{{ internship.start_date.strftime('%b %d, %Y') }} - {{ internship.end_date.strftime('%b %d, %Y') }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if internship.status == 'approved' %}success{% elif internship.status == 'rejected' %}danger{% elif internship.status == 'pending' %}warning{% else %}info{% endif %}">
+                                            {{ internship.status.title() }}
+                                        </span>
+                                    </td>
+                                    <td>{{ internship.created_at.strftime('%b %d, %Y') }}</td>
+                                    <td>
+                                        {% if internship.status == 'pending' %}
+                                            <div class="btn-group" role="group">
+                                                <a href="{{ url_for('approve_internship', internship_id=internship.id) }}" 
+                                                   class="btn btn-sm btn-success"
+                                                   onclick="return confirm('Are you sure you want to approve this internship?')">
+                                                    <i class="fas fa-check"></i> Approve
+                                                </a>
+                                                <a href="{{ url_for('reject_internship', internship_id=internship.id) }}" 
+                                                   class="btn btn-sm btn-danger"
+                                                   onclick="return confirm('Are you sure you want to reject this internship?')">
+                                                    <i class="fas fa-times"></i> Reject
+                                                </a>
+                                            </div>
+                                        {% endif %}
+                                        {% if internship.proof_file %}
+                                            <a href="{{ url_for('static', filename='uploads/' + internship.proof_file) }}" 
+                                               class="btn btn-sm btn-outline-secondary" target="_blank">
+                                                <i class="fas fa-eye"></i> View Proof
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No internships found</h5>
+                        <p class="text-muted">No internship applications have been submitted yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System Statistics -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-pie"></i> Status Distribution</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="statusChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> System Information</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Total Applications:</span>
+                        <span class="badge bg-primary">{{ all_internships|length }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Pending Review:</span>
+                        <span class="badge bg-warning">{{ all_internships|selectattr('status', 'equalto', 'pending')|list|length }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Approved:</span>
+                        <span class="badge bg-success">{{ all_internships|selectattr('status', 'equalto', 'approved')|list|length }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>Rejected:</span>
+                        <span class="badge bg-danger">{{ all_internships|selectattr('status', 'equalto', 'rejected')|list|length }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Status distribution chart
+const ctx = document.getElementById('statusChart').getContext('2d');
+const statusChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Pending', 'Approved', 'Rejected'],
+        datasets: [{
+            data: [
+                {{ all_internships|selectattr('status', 'equalto', 'pending')|list|length }},
+                {{ all_internships|selectattr('status', 'equalto', 'approved')|list|length }},
+                {{ all_internships|selectattr('status', 'equalto', 'rejected')|list|length }}
+            ],
+            backgroundColor: [
+                '#ffc107',
+                '#28a745',
+                '#dc3545'
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
